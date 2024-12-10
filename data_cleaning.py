@@ -1,21 +1,20 @@
 import pandas as pd
 
-# Load the dataset
-data = pd.read_csv('athlete_performance_data.csv')
+# Load raw dataset
+data = pd.read_csv('data/athlete_events.csv')
 
-# Display initial info
-print("Initial Data Info:")
-print(data.info())
+# Drop rows with missing values in critical columns
+data = data.dropna(subset=['Height', 'Weight', 'Age'])
 
-# Drop rows with missing values
-data.dropna(inplace=True)
+# Normalize continuous variables
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+data[['Height', 'Weight', 'Age']] = scaler.fit_transform(data[['Height', 'Weight', 'Age']])
 
-# Reset index after dropping
-data.reset_index(drop=True, inplace=True)
+# One-hot encode the 'Medal' column
+data = pd.get_dummies(data, columns=['Medal'], prefix='', prefix_sep='')
 
-# Display cleaned data info
-print("Cleaned Data Info:")
-print(data.info())
+# Save cleaned data
+data.to_csv('data/cleaned_athlete_data.csv', index=False)
+print("Data cleaning complete. Cleaned data saved to 'data/cleaned_athlete_data.csv'.")
 
-# Save the cleaned data
-data.to_csv('cleaned_athlete_performance_data.csv', index=False)
